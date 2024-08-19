@@ -23,6 +23,9 @@ from thunder.benchmarks import (
     NanoGPTCrossEntropyBenchmark,
     LitGPTGeluBenchmark,
     NanoGPTLayerNormBenchmark,
+    NanoGPTMLPBenchmark,
+    NanoGPTCSABenchmark,
+    NanoGPTBlockBenchmark,
     thunder_apex_executor,
     thunder_apex_nvfuser_executor,
     thunder_cudnn_executor,
@@ -197,6 +200,64 @@ def get_unique_configs(config_options: Sequence[str]):
 # Let's select only the configurations that differ in these parameters
 def get_configs_for_gelu():
     return get_unique_configs(("gelu_approximate", "intermediate_size", "block_size"))
+
+
+
+@pytest.mark.parametrize(
+    "executor,",
+    executors,
+    ids=executors_ids,
+)
+@parametrize_compute_type
+def test_nanogpt_mlp(benchmark, executor: Callable, compute_type: ComputeType):
+    bench: Benchmark = NanoGPTMLPBenchmark(
+        config="gpt2-xl", device="cuda:0", dtype=thunder.bfloat16, requires_grad=is_requires_grad(compute_type)
+    )
+
+    args, kwargs = bench.make_batch()
+    fn = executor(bench.fn())
+
+    benchmark_for_compute_type(compute_type, benchmark, fn, args, kwargs)
+
+
+# NOTE The CSA module is linear -> sdpa -> dropout
+@pytest.mark.parametrize(
+    "executor,",
+    executors,
+    ids=executors_ids,
+)
+@parametrize_compute_type
+def test_nanogpt_csa(benchmark, executor: Callable, compute_type: ComputeType):
+    bench: Benchmark = NanoGPTCSABenchmark(
+        config="gpt2-xl",
+        device="cuda:0",
+        dtype=thunder.bfloat16,
+        requires_grad=is_requires_grad(compute_type),
+    )
+
+    args, kwargs = bench.make_batch()
+    fn = executor(bench.fn())
+
+    benchmark_for_compute_type(compute_type, benchmark, fn, args, kwargs)
+
+
+# NOTE NanoGPT's block module is layernorm -> csa -> layernorm -> mlp
+@pytest.mark.parametrize(
+    "executor,",
+    executors,
+    ids=executors_ids,
+)
+@parametrize_compute_type
+def test_nanogpt_block(benchmark, executor: Callable, compute_type: ComputeType):
+    bench: Benchmark = NanoGPTBlockBenchmark(
+        config="gpt2-xl", device="cuda:0", dtype=thunder.bfloat16, requires_grad=is_requires_grad(compute_type)
+    )
+
+    args, kwargs = bench.make_batch()
+    fn = executor(bench.fn())
+
+    benchmark_for_compute_type(compute_type, benchmark, fn, args, kwargs)
+
 
 
 # Sample command to run this benchmark:

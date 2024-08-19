@@ -172,7 +172,7 @@ def test_nanogpt_complete_cuda_graphs_autograd(executor, device, dtype):
         build_cuda_graph.cache_clear()
 
 
-@instantiate(dtypes=(thunder.float32,), executors=all_test_executors_and_dynamo)
+@instantiate(dtypes=(thunder.bfloat16,), executors=all_test_executors_and_dynamo)
 def test_nanogpt_csa(executor, device, dtype):
     tdtype = ttorch.to_torch_dtype(dtype)
     make = partial(make_tensor, dtype=tdtype, device=device)
@@ -214,7 +214,7 @@ def test_nanogpt_block(executor, device, dtype):
     assert_close(torch_result, thunder_result)
 
 
-@instantiate(dtypes=(thunder.float32,), executors=all_test_executors_and_dynamo)
+@instantiate(dtypes=(thunder.bfloat16,), executors=all_test_executors_and_dynamo)
 def test_nanogpt_mlp(executor, device, dtype):
     tdtype = ttorch.to_torch_dtype(dtype)
     make = partial(make_tensor, dtype=tdtype, device=device)

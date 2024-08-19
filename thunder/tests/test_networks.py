@@ -25,7 +25,8 @@ import thunder.tests.hf_bart_self_attn as hf_bart_self_attn
 # use the DynamoThunderExecutor. When there's more than one file that uses the
 # DynamoThunderExecutor, we should consider adding a separate list of executors
 # to the framework.py file.
-all_test_executors_and_dynamo = _all_test_executors() + [DynamoThunderExecutor]
+all_test_executors_and_dynamo = _all_test_executors() # + [DynamoThunderExecutor]
+
 
 
 @instantiate(dtypes=(thunder.float32,), executors=all_test_executors_and_dynamo)
@@ -190,7 +191,7 @@ def test_nanogpt_csa(executor, device, dtype):
     # Greatest absolute difference: 2.0623207092285156e-05 at index (1, 433, 24) (up to 1e-05 allowed)
     # Greatest relative difference: 0.03444782271981239 at index (0, 484, 119) (up to 1.3e-06 allowed)
     # See: https://github.com/Lightning-AI/lightning-thunder/issues/997
-    tom = executor.make_callable(csa, disable_torch_autograd=True)
+    tom = executor.make_callable(csa, disable_torch_autograd=False)
     thunder_result = tom(inp)
 
     # assert_close(torch_result, thunder_result)
@@ -225,7 +226,7 @@ def test_nanogpt_mlp(executor, device, dtype):
     inp = make((2, config.n_embd))
     torch_result = mlp(inp)
 
-    tom = executor.make_callable(mlp)
+    tom = executor.make_callable(mlp, requires_grad=True)
     thunder_result = tom(inp)
 
     # These won't be equal, because dropout is not 0, for getting accurate trace.

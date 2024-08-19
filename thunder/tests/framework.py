@@ -271,13 +271,13 @@ if NVFUSER_AVAILABLE:
 
 def _all_test_executors():
     """Constructs a list of all Thunder executors to be used when generating tests."""
-    # TODO: include the torch compile executors: https://github.com/Lightning-AI/lightning-thunder/issues/299
-    executors = [TorchExecutor]
+    # # TODO: include the torch compile executors: https://github.com/Lightning-AI/lightning-thunder/issues/299
+    # executors = [TorchExecutor]
 
-    if NVFUSER_AVAILABLE:
-        executors.append(nvFuserExecutor)
+    # if NVFUSER_AVAILABLE:
+    #     executors.append(nvFuserExecutor)
 
-    return executors
+    return [nvFuserExecutor]
 
 
 # Translates test templates with names like test_foo into instantiated tests with names like

@@ -2158,9 +2158,10 @@ def remove_redundant_casts(trace: TraceCtx) -> tuple[TraceCtx, list[TraceCtx]]:
 
 
 def _linear_check(a: TensorProxy, b: TensorProxy, bias: TensorProxy | None) -> bool:
-    enable_linear: None | bool = get_compile_option("nv_enable_linear", "Enable nvFuser linear.")
-    if not enable_linear:
-        return False
+    # Always use nvfuser linear.
+    # enable_linear: None | bool = get_compile_option("nv_enable_linear", "Enable nvFuser linear.")
+    # if not enable_linear:
+    #     return False
     # Verify linear inputs and bias (optional) are supported tensors.
     if not are_supported_tensors(a, b) or (bias is not None and not is_supported_tensor(bias)):
         return False
@@ -2188,10 +2189,11 @@ def _matmul_check(
     a: TensorProxy,
     b: TensorProxy,
 ) -> bool:
-    enable_matmul: None | bool = get_compile_option("nv_enable_matmul", "Enable nvFuser matmul.")
+    # Always use nvfuse rmatmul
+    # enable_matmul: None | bool = get_compile_option("nv_enable_matmul", "Enable nvFuser matmul.")
 
-    if not enable_matmul or not are_supported_tensors(a, b):
-        return False
+    # if not enable_matmul or not are_supported_tensors(a, b):
+    #     return False
     return True
 
 
